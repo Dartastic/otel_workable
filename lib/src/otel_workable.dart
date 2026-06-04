@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_workable_suppression.dart';
 
@@ -66,70 +65,95 @@ Future<T> tracedWorkable<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_workable');
   final span = t.startSpan('workable $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'workable');
-    span.setStringAttribute('rpc.method', operation);
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'workable')]));
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.method', operation)]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.account != null) {
-        span.setStringAttribute('workable.account', res.account!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.account', res.account!)]));
       }
       if (res.jobId != null) {
-        span.setStringAttribute('workable.job.id', res.jobId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.job.id', res.jobId!)]));
       }
       if (res.jobShortcode != null) {
-        span.setStringAttribute('workable.job.shortcode', res.jobShortcode!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('workable.job.shortcode', res.jobShortcode!)
+        ]));
       }
       if (res.jobTitle != null) {
-        span.setStringAttribute('workable.job.title', res.jobTitle!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.job.title', res.jobTitle!)]));
       }
       if (res.jobState != null) {
-        span.setStringAttribute('workable.job.state', res.jobState!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.job.state', res.jobState!)]));
       }
       if (res.jobDepartment != null) {
-        span.setStringAttribute('workable.job.department', res.jobDepartment!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('workable.job.department', res.jobDepartment!)
+        ]));
       }
       if (res.candidateId != null) {
-        span.setStringAttribute('workable.candidate.id', res.candidateId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.candidate.id', res.candidateId!)]));
       }
       if (res.candidateStage != null) {
-        span.setStringAttribute(
-            'workable.candidate.stage', res.candidateStage!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('workable.candidate.stage', res.candidateStage!)
+        ]));
       }
       if (res.applicationId != null) {
-        span.setStringAttribute('workable.application.id', res.applicationId!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('workable.application.id', res.applicationId!)
+        ]));
       }
       if (res.applicationState != null) {
-        span.setStringAttribute(
-            'workable.application.state', res.applicationState!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              'workable.application.state', res.applicationState!)
+        ]));
       }
       if (res.interviewId != null) {
-        span.setStringAttribute('workable.interview.id', res.interviewId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.interview.id', res.interviewId!)]));
       }
       if (res.interviewState != null) {
-        span.setStringAttribute(
-            'workable.interview.state', res.interviewState!);
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString('workable.interview.state', res.interviewState!)
+        ]));
       }
       if (res.offerId != null) {
-        span.setStringAttribute('workable.offer.id', res.offerId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.offer.id', res.offerId!)]));
       }
       if (res.offerState != null) {
-        span.setStringAttribute('workable.offer.state', res.offerState!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.offer.state', res.offerState!)]));
       }
       if (res.memberId != null) {
-        span.setStringAttribute('workable.member.id', res.memberId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.member.id', res.memberId!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('workable.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('workable.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-            ErrorResource.errorType.key, res.errorCode ?? 'workable.error');
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+              ErrorResource.errorType.key, res.errorCode ?? 'workable.error')
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
