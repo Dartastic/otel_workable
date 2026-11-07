@@ -1,11 +1,12 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_workable_suppression.dart';
 
 class WorkableResult {
+  /// Creates a result.
   const WorkableResult({
     this.account,
     this.jobId,
@@ -47,8 +48,13 @@ class WorkableResult {
   final String? errorMessage;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class WorkableCallResult<T> {
+  /// Creates a call result.
   const WorkableCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final WorkableResult? result;
 }
@@ -56,103 +62,109 @@ class WorkableCallResult<T> {
 Future<T> tracedWorkable<T>({
   required String operation,
   required Future<WorkableCallResult<T>> Function() invoke,
-  Tracer? tracer,
+  APITracer? tracer,
 }) async {
   if (workableInstrumentationSuppressed()) {
     final r = await invoke();
     return r.value;
   }
-  final t = tracer ?? OTel.tracerProvider().getTracer('otel_workable');
+  final t = tracer ?? OTelAPI.tracerProvider().getTracer('otel_workable');
   final span = t.startSpan('workable $operation', kind: SpanKind.client);
   try {
+    span.addAttributes(OTelAPI.attributes(
+        [OTelAPI.attributeString('rpc.system', 'workable')]));
     span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.system', 'workable')]));
-    span.addAttributes(
-        OTel.attributes([OTel.attributeString('rpc.method', operation)]));
+        OTelAPI.attributes([OTelAPI.attributeString('rpc.method', operation)]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.account != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.account', res.account!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.account', res.account!)]));
       }
       if (res.jobId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.job.id', res.jobId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.job.id', res.jobId!)]));
       }
       if (res.jobShortcode != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('workable.job.shortcode', res.jobShortcode!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.job.shortcode', res.jobShortcode!)
         ]));
       }
       if (res.jobTitle != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.job.title', res.jobTitle!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.job.title', res.jobTitle!)]));
       }
       if (res.jobState != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.job.state', res.jobState!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.job.state', res.jobState!)]));
       }
       if (res.jobDepartment != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('workable.job.department', res.jobDepartment!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.job.department', res.jobDepartment!)
         ]));
       }
       if (res.candidateId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.candidate.id', res.candidateId!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.candidate.id', res.candidateId!)
+        ]));
       }
       if (res.candidateStage != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('workable.candidate.stage', res.candidateStage!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              'workable.candidate.stage', res.candidateStage!)
         ]));
       }
       if (res.applicationId != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('workable.application.id', res.applicationId!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.application.id', res.applicationId!)
         ]));
       }
       if (res.applicationState != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
               'workable.application.state', res.applicationState!)
         ]));
       }
       if (res.interviewId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.interview.id', res.interviewId!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.interview.id', res.interviewId!)
+        ]));
       }
       if (res.interviewState != null) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString('workable.interview.state', res.interviewState!)
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              'workable.interview.state', res.interviewState!)
         ]));
       }
       if (res.offerId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.offer.id', res.offerId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.offer.id', res.offerId!)]));
       }
       if (res.offerState != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.offer.state', res.offerState!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString('workable.offer.state', res.offerState!)
+        ]));
       }
       if (res.memberId != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.member.id', res.memberId!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.member.id', res.memberId!)]));
       }
       if (res.statusCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeInt('http.response.status_code', res.statusCode!)
+        ]));
       }
       if (res.errorCode != null) {
-        span.addAttributes(OTel.attributes(
-            [OTel.attributeString('workable.error.code', res.errorCode!)]));
+        span.addAttributes(OTelAPI.attributes(
+            [OTelAPI.attributeString('workable.error.code', res.errorCode!)]));
       }
       final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.addAttributes(OTel.attributes([
-          OTel.attributeString(
-              ErrorResource.errorType.key, res.errorCode ?? 'workable.error')
+        span.addAttributes(OTelAPI.attributes([
+          OTelAPI.attributeString(
+              ErrorAttributes.errorType.key, res.errorCode ?? 'workable.error')
         ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
